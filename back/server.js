@@ -5,30 +5,34 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 
 const app = express();
-
 app.use(cors({
     origin: 'http://localhost:5173'
 }));
-
+dotenv.config();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
         origin: 'http://localhost:5173'
     }
 });
-dotenv.config();
 
-//----------------------------------
+
+let users = [];
 
 io.on('connection', socket => {
-    console.log(`A user ${socket.id} connected`);
+    // console.log(`A user ${socket.id} connected`);
+
+    socket.on('register', userName => {
+        users.push({ user: userName, socket: socket.id })
+    })
 
     socket.on('typing', () => {
-        console.log("typing")
+        io.emit('typing', users.filter(u => u.socket == socket.id));
     })
 
     socket.on('chat message', (msg) => {
         io.emit('chat message', msg); // sending the message that came from a single socket(user), to all users
+        console.log("users and their socket: ", users)
     });
 
     socket.on('disconnect', () => {
