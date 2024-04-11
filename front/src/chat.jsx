@@ -1,4 +1,3 @@
-// src/Chat.js
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
@@ -10,9 +9,14 @@ function Chat() {
 
     useEffect(() => {
         socket.on('chat message', (msg) => {
-            setMessages((msgs) => [...msgs, msg]);
+            setMessages(msgs => [...msgs, msg]);
         });
     }, []);
+
+    const handleChange = (e) => {
+        setMessage(e.target.value)
+        socket.emit('typing')
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -32,7 +36,7 @@ function Chat() {
             <form onSubmit={handleSubmit}>
                 <input
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={handleChange}
                     placeholder="Type a message..."
                 />
                 <button type="submit">Send</button>
